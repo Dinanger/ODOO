@@ -1,5 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_escuela_profesor,escuela.profesor,model_escuela_profesor,base.group_user,1,1,1,1
-access_escuela_alumno,escuela.alumno,model_escuela_alumno,base.group_user,1,1,1,1
-access_escuela_materia,escuela.materia,model_escuela_materia,base.group_user,1,1,1,1
-access_escuela_nota,escuela.nota,model_escuela_nota,base.group_user,1,1,1,1
+access_escuela_student,escuela.student,model_escuela_student,base.group_user,1,1,1,1
+access_escuela_subjects,escuela.subjects,model_escuela_subjects,base.group_user,1,1,1,1
+access_escuela_grade,escuela.grade,model_escuela_grade,base.group_user,1,1,1,1

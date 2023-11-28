@@ -3,106 +3,69 @@
 from odoo import models, fields, api
 
 
-class profesor(models.Model):
+class escuela(models.Model):
     _name = "escuela.profesor"
-    _description = "profesor"
+    _description = "escuela"
 
-    name = fields.Char(string="Nombre", required=True)
-    fotografia = fields.Binary(string="Fotografía")
-    description = fields.Text(string="Descripcion")
-    edad = fields.Integer(string="Edad", required=True)
-    fecha_nacimiento = fields.Date(string="Fecha de Nacimiento")
-    saldo = fields.Float(string="Saldo")
-    estado = fields.Boolean(string="Estado del Profesor")
-    grado = fields.Selection(
+    name = fields.Char(string="name", required=True)
+    age = fields.Integer(string="age", required=True)   
+    born = fields.Date(string="Born age", required=True) 
+    salary = fields.Float(string="Salary", required=True)
+    status = fields.Boolean(string="Status", required=True)
+    grade = fields.Selection(
         [
-            ("primaria", "Primaria"),
-            ("basico", "Basico"),
+        ("primary", "Primary"),
+        ("segundary","Segundary"),
         ],
-        string="Grado",
-        default="primaria",
-        required=True,
+        string="Grade",
+        default="primary",
+        require=True,
     )
-    alumno = fields.One2many("escuela.alumno", inverse_name="profesor", string="Alumno")
-    materia = fields.Many2many(
-        comodel_name="escuela.materia",
-        relation_name="escuelas_materias",
+    student = fields.One2many("escuela.student",inverse_name="teacher",string="student")
+
+    subjects  = fields.Many2many(
+
+        comodel_name="escuela.subjects",
+        relation_name="escuela_subjects",
         column1="escuela_id",
-        column2="materia_id",
+        column2="subjects_id",
     )
 
+class student(models.Model):
+    _name = "escuela.student"
+    _description = "escuela"
 
-class alumno(models.Model):
-    _name = "escuela.alumno"
-    _description = "Alumnos"
+    name = fields.Char(string="name", required=True)
+    age = fields.Integer(string="age", required=True)   
+    teacher = fields.Many2one("escuela.profesor",string="teacher", required=True)
+    grade_id = fields.One2many("escuela.grade", "student_id",string="grade")
 
-    name = fields.Char(string="Nombre", required=True)
-    fotografia = fields.Binary(string="Fotografía")
-    edad = fields.Integer(string="Edad", required=True)
-    genero = fields.Selection(
-        [
-            ("h", "Hombre"),
-            ("m", "Mujer"),
-        ],
-        string="Genero",
-        default="h",
-        required=True,
-    )
-    profesor = fields.Many2one("escuela.profesor")
-    notas_id = fields.One2many("escuela.nota", "alumno_id", string="Notas")
-
-
-class materia(models.Model):
-    _name = "escuela.materia"
-    _description = "Materias"
-
-    name = fields.Char(string="Nombre", required=True)
-    profesor = fields.Many2many(
+class subjects(models.Model):
+    _name = "escuela.subjects"
+    _description = "subjects"
+    
+    name = fields.Char(string="Subjects", required=True)
+    credit = fields.Integer(string="Credit")
+    teacher  = fields.Many2many(
         comodel_name="escuela.profesor",
-        relation_name="escuelas_materias",
-        column1="materia_id",
-        column2="escuela_id",
-    )
-    notas_ids = fields.One2many("escuela.nota", "materia_id", string="Notas")
-    alumno_ids = fields.Many2many(
-        "escuela.alumno", string="Alumnos", compute="_compute_alumno_ids"
+        relation_name="escuela_subjects",
+        column1="subjects_id",
+        column2="escuela_id",  
     )
 
-    @api.depends("notas_ids", "notas_ids.alumno_id")
-    def _compute_alumno_ids(self):
-        for materia in self:
-            materia.alumno_ids = materia.notas_ids.mapped("alumno_id")
-
-
-class nota(models.Model):
-    _name = "escuela.nota"
-    _description = "Nota de Alumno en Materia"
-
-    alumno_id = fields.Many2one("escuela.alumno", string="Alumno", required=True)
-    materia_id = fields.Many2one("escuela.materia", string="Materia", required=True)
-    nota = fields.Integer(string="Nota")
-    estado = fields.Char(string="Estado", compute="_compute_estado")
-
-    @api.depends("nota")
-    def _compute_estado(self):
+class grade(models.Model):
+    _name = "escuela.grade"
+    _description = "grade"
+    student_id = fields.Many2one("escuela.student", string="Student")
+    subject_id = fields.Many2one("escuela.subjects", string="subjects")
+    grade = fields.Integer(string="Grade",required=True)
+    status = fields.Char("Status",compute="_compute_status")
+    @api.depends("grade")
+    def _compute_status(self):
         for record in self:
-            if record.nota >= 60:
-                record.estado = "Ganado"
+            if record.grade >= 70:
+                record.status = "aproved"
             else:
-                record.estado = "Perdido"
+                record.status = "reprove"
 
-    """
-    @api.multi: Este decorador se utiliza para indicar que un método es multilínea, es decir, que puede aplicarse a varios registros a la vez.
-    @api.depends: Este decorador se utiliza para indicar que el valor de un método depende de otros valores.
-    @api.constrains: Este decorador se utiliza para definir restricciones para un campo o un modelo.
-    @api.onchange: Este decorador se utiliza para definir el comportamiento de un campo cuando se modifica.
-    @api.multi_edit: Este decorador se utiliza para indicar que un método puede utilizarse para editar varios registros a la vez.
-    @api.ondelete: Este decorador se utiliza para definir el comportamiento de un modelo cuando se elimina un registro.
-
-    @api.onchange.domain: Este decorador se utiliza para definir el dominio de un campo cuando se modifica.
-    @api.onchange.fields: Este decorador se utiliza para definir los campos que se actualizan cuando se modifica un campo.
-    @api.onchange.mode: Este decorador se utiliza para definir el modo de un campo cuando se modifica.
-    @api.onchange.context: Este decorador se utiliza para definir el contexto de un campo cuando se modifica.
-        
-        
-    """
+    
